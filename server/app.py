@@ -5,6 +5,8 @@ from flask_migrate import Migrate
 
 from models import db, Bakery, BakedGood
 
+from sqlalchemy import func
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -20,19 +22,54 @@ def index():
 
 @app.route('/bakeries')
 def bakeries():
-    return ''
+    bakeries = []
+    for bakery in Bakery.query.all():
+        bakery_dict = {
+            "name" = bakery.name,
+            "created_at" = bakery.created_at,
+            "updated_at" = bakery.updated_at,
+        }
+        bakeries.append(bakery_dict)
+    response = make_response(
+        bakeries,
+        200,
+        {"Content-Type": "application/json"}
+    )
+
+    return response
 
 @app.route('/bakeries/<int:id>')
 def bakery_by_id(id):
-    return ''
+    bakery = Bakery.query.filter(Bakery.id == id).first()
+    bakery_dict = bakery.to_dict()
+
+    response = make_response(
+        bakery_dict,
+        200
+    )
+    return response
 
 @app.route('/baked_goods/by_price')
-def baked_goods_by_price():
-    return ''
+def baked_goods_by_price(price):
+    baked_good = BakedGood.query.filter(BakedGood.price == price).all()
+    baked_good_dict = baked_good.to_dict()
+
+    response = make_response(
+        baked_good_dict,
+        200
+    )
+    return response
 
 @app.route('/baked_goods/most_expensive')
 def most_expensive_baked_good():
-    return ''
+    baked_good = BakedGood.query.filter(func.max(BakedGood.price))
+    baked_good_dict = baked_good.to_dict()
+
+    response = make_response(
+        baked_good_dict,
+        200
+    )
+    return response
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
