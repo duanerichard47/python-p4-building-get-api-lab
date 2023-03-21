@@ -51,7 +51,7 @@ def bakery_by_id(id):
 
 @app.route('/baked_goods/by_price')
 def baked_goods_by_price(price):
-    baked_good = BakedGood.query.filter(BakedGood.price == price).all()
+    baked_good = BakedGood.query.order_by(BakedGood.price == price).all()
     baked_good_dict = baked_good.to_dict()
 
     response = make_response(
@@ -73,3 +73,5 @@ def most_expensive_baked_good():
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
+
+
